@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import { notFound, errorHandler } from './middleware/errorHandler.js';
+import authRoutes from './routes/authRoutes.js';
 
 const app = express();
 
@@ -34,8 +35,9 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Feature routes will be mounted here in later phases, e.g.:
-// app.use('/api/auth', authRoutes);
+app.use('/api/auth', authRoutes);
+
+// Further feature routes will be mounted here in later phases.
 
 // Must stay last: unmatched routes -> 404, then all errors -> errorHandler.
 app.use(notFound);
