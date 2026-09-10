@@ -1,5 +1,6 @@
 import Product from '../models/Product.js';
 import Category from '../models/Category.js';
+import Supplier from '../models/Supplier.js';
 import { AppError } from '../utils/AppError.js';
 import { escapeRegex } from '../utils/escapeRegex.js';
 
@@ -13,14 +14,24 @@ const assertCategoryIsUsable = async (categoryId) => {
   }
 };
 
+// Same idea as assertCategoryIsUsable, but for the optional supplier
+// reference. Only called when a supplier id is actually provided.
+const assertSupplierIsUsable = async (supplierId) => {
+  const supplier = await Supplier.findById(supplierId);
+  if (!supplier || !supplier.isActive) {
+    throw new AppError('Supplier not found or inactive', 400);
+  }
+};
+
 // GET /api/products
 export const getProducts = async (req, res) => {
   const showInactive = req.user.role === 'admin' && req.query.includeInactive === 'true';
   const filter = showInactive ? {} : { isActive: true };
 
-  // supplier is intentionally not populated yet -- the Supplier model
-  // doesn't exist until Phase 8. It's added back once that model exists.
-  const products = await Product.find(filter).populate('category', 'name').sort({ name: 1 });
+  const products = await Product.find(filter)
+    .populate('category', 'name')
+    .populate('supplier', 'name')
+    .sort({ name: 1 });
 
   res.status(200).json({
     success: true,
@@ -31,8 +42,9 @@ export const getProducts = async (req, res) => {
 
 // GET /api/products/:id
 export const getProductById = async (req, res) => {
-  // supplier is intentionally not populated yet -- see getProducts above.
-  const product = await Product.findById(req.params.id).populate('category', 'name');
+  const product = await Product.findById(req.params.id)
+    .populate('category', 'name')
+    .populate('supplier', 'name');
 
   if (!product) {
     throw new AppError('Product not found', 404);
@@ -60,6 +72,9 @@ export const createProduct = async (req, res) => {
   } = req.body;
 
   await assertCategoryIsUsable(category);
+  if (supplier) {
+    await assertSupplierIsUsable(supplier);
+  }
 
   // Case-insensitive duplicate check, same reasoning as Category (Phase 6):
   // the unique index alone would let "KB-001" and "kb-001" both exist.
@@ -81,6 +96,7 @@ export const createProduct = async (req, res) => {
   });
 
   await product.populate('category', 'name');
+  await product.populate('supplier', 'name');
 
   res.status(201).json({
     success: true,
@@ -96,7 +112,7 @@ export const createProduct = async (req, res) => {
 
 // PUT /api/products/:id
 export const updateProduct = async (req, res) => {
-  const { sku, category } = req.body;
+  const { sku, category, supplier } = req.body;
 
   const product = await Product.findById(req.params.id);
   if (!product) {
@@ -105,6 +121,9 @@ export const updateProduct = async (req, res) => {
 
   if (category) {
     await assertCategoryIsUsable(category);
+  }
+  if (supplier) {
+    await assertSupplierIsUsable(supplier);
   }
 
   if (sku && sku.toLowerCase() !== product.sku.toLowerCase()) {
@@ -135,8 +154,8 @@ export const updateProduct = async (req, res) => {
   }
 
   await product.save();
-  // supplier is intentionally not populated yet -- see getProducts above.
   await product.populate('category', 'name');
+  await product.populate('supplier', 'name');
 
   res.status(200).json({
     success: true,
