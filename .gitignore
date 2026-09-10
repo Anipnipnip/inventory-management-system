@@ -1,0 +1,5 @@
+# OS / editor noise that can appear anywhere in the repo.
+# Language/tool-specific ignores live in backend/.gitignore and frontend/.gitignore.
+.DS_Store
+Thumbs.db
+*.log
