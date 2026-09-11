@@ -27,6 +27,12 @@ export const Sidebar = () => {
         <NavLink to="/products" className={linkClasses}>
           Products
         </NavLink>
+        <NavLink to="/inventory" className={linkClasses}>
+          Inventory
+        </NavLink>
+        <NavLink to="/history" className={linkClasses}>
+          Stock History
+        </NavLink>
         {isAdmin && (
           <NavLink to="/categories" className={linkClasses}>
             Categories
@@ -35,6 +41,11 @@ export const Sidebar = () => {
         {isAdmin && (
           <NavLink to="/suppliers" className={linkClasses}>
             Suppliers
+          </NavLink>
+        )}
+        {isAdmin && (
+          <NavLink to="/warehouses" className={linkClasses}>
+            Warehouses
           </NavLink>
         )}
       </nav>

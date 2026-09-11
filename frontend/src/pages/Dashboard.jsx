@@ -2,16 +2,8 @@ import { useEffect, useState } from 'react';
 import { getDashboardSummary } from '../services/dashboardService';
 import { getErrorMessage } from '../utils/getErrorMessage';
 import { formatCurrency, formatNumber, formatDateTime } from '../utils/formatters';
+import { STOCK_TRANSACTION_TYPES } from '../utils/stockTransactionTypes';
 import { StatCard } from '../components/StatCard';
-
-// Human-readable label + color for each StockTransaction type, used
-// in the recent activity feed below.
-const ACTIVITY_LABELS = {
-  in: { label: 'Stock In', className: 'text-emerald-600' },
-  out: { label: 'Stock Out', className: 'text-red-600' },
-  'transfer-in': { label: 'Transfer In', className: 'text-blue-600' },
-  'transfer-out': { label: 'Transfer Out', className: 'text-amber-600' },
-};
 
 export default function Dashboard() {
   const [summary, setSummary] = useState(null);
@@ -104,7 +96,7 @@ export default function Dashboard() {
           ) : (
             <ul className="mt-3 space-y-3">
               {summary.recentActivity.map((activity) => {
-                const meta = ACTIVITY_LABELS[activity.type];
+                const meta = STOCK_TRANSACTION_TYPES[activity.type];
                 return (
                   <li key={activity._id} className="flex items-center justify-between text-sm">
                     <div>

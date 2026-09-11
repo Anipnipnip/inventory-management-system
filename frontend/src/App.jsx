@@ -11,6 +11,9 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Categories from './pages/Categories';
 import Suppliers from './pages/Suppliers';
+import InventoryPage from './pages/Inventory';
+import History from './pages/History';
+import Warehouses from './pages/Warehouses';
 
 function App() {
   return (
@@ -26,11 +29,14 @@ function App() {
             <Route element={<MainLayout />}>
               <Route path="/" element={<HomeRedirect />} />
               <Route path="/products" element={<Products />} />
+              <Route path="/inventory" element={<InventoryPage />} />
+              <Route path="/history" element={<History />} />
 
               <Route element={<AdminRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/suppliers" element={<Suppliers />} />
+                <Route path="/warehouses" element={<Warehouses />} />
               </Route>
             </Route>
           </Route>
