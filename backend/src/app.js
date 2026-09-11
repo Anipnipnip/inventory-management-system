@@ -10,6 +10,8 @@ import productRoutes from './routes/productRoutes.js';
 import supplierRoutes from './routes/supplierRoutes.js';
 import warehouseRoutes from './routes/warehouseRoutes.js';
 import inventoryRoutes from './routes/inventoryRoutes.js';
+import dashboardRoutes from './routes/dashboardRoutes.js';
+import reportRoutes from './routes/reportRoutes.js';
 
 const app = express();
 
@@ -48,6 +50,8 @@ app.use('/api/products', productRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/warehouses', warehouseRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/reports', reportRoutes);
 
 // Further feature routes will be mounted here in later phases.
 
