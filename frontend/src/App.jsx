@@ -15,6 +15,7 @@ import InventoryPage from './pages/Inventory';
 import History from './pages/History';
 import Warehouses from './pages/Warehouses';
 import Reports from './pages/Reports';
+import NotFound from './pages/NotFound';
 
 function App() {
   return (
@@ -42,6 +43,9 @@ function App() {
               </Route>
             </Route>
           </Route>
+
+          {/* Must stay last -- only matches when no route above did. */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

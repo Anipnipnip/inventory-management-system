@@ -3,6 +3,7 @@ import * as supplierService from '../services/supplierService';
 import { getErrorMessage, getFieldErrors } from '../utils/getErrorMessage';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { Alert } from '../components/Alert';
 
 // Admin-only page (see Sidebar.jsx) -- same reasoning as Categories.
 
@@ -157,6 +158,8 @@ export default function Suppliers() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [successMessage, setSuccessMessage] = useState('');
+
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [pendingAction, setPendingAction] = useState(null);
@@ -181,8 +184,10 @@ export default function Suppliers() {
   }, [showInactive]);
 
   const handleSaved = () => {
+    const wasEditing = Boolean(editingSupplier);
     setEditingSupplier(null);
     setIsCreating(false);
+    setSuccessMessage(wasEditing ? 'Supplier updated.' : 'Supplier created.');
     loadSuppliers();
   };
 
@@ -194,6 +199,9 @@ export default function Suppliers() {
       } else {
         await supplierService.restoreSupplier(pendingAction.supplier._id);
       }
+      setSuccessMessage(
+        pendingAction.type === 'deactivate' ? 'Supplier deactivated.' : 'Supplier restored.'
+      );
       setPendingAction(null);
       loadSuppliers();
     } catch (err) {
@@ -213,6 +221,8 @@ export default function Suppliers() {
           Add Supplier
         </button>
       </div>
+
+      {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
       <label className="mt-4 flex items-center gap-2 text-sm text-slate-600">
         <input

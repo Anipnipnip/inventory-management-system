@@ -9,6 +9,7 @@ import { formatCurrency } from '../utils/formatters';
 import { ProductFormModal } from '../components/ProductFormModal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { Pagination } from '../components/Pagination';
+import { Alert } from '../components/Alert';
 
 const SORT_OPTIONS = [
   { value: 'name-asc', label: 'Name (A-Z)' },
@@ -100,6 +101,9 @@ export default function Products() {
       } else {
         await productService.restoreProduct(pendingAction.product._id);
       }
+      setSuccessMessage(
+        pendingAction.type === 'deactivate' ? 'Product deactivated.' : 'Product restored.'
+      );
       setPendingAction(null);
       loadProducts();
     } catch (err) {
@@ -122,14 +126,7 @@ export default function Products() {
         )}
       </div>
 
-      {successMessage && (
-        <div
-          className="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-          role="status"
-        >
-          {successMessage}
-        </div>
-      )}
+      {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
       <div className="mt-4 flex flex-wrap gap-3">
         <input

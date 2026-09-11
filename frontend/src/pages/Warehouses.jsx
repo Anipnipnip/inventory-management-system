@@ -3,6 +3,7 @@ import * as warehouseService from '../services/warehouseService';
 import { getErrorMessage, getFieldErrors } from '../utils/getErrorMessage';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { Alert } from '../components/Alert';
 
 // Admin-only page (see Sidebar.jsx and backend warehouseRoutes.js,
 // which restricts every route here including GET).
@@ -105,7 +106,7 @@ export default function Warehouses() {
   const [showInactive, setShowInactive] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [actionMessage, setActionMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const [editingWarehouse, setEditingWarehouse] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
@@ -131,8 +132,10 @@ export default function Warehouses() {
   }, [showInactive]);
 
   const handleSaved = () => {
+    const wasEditing = Boolean(editingWarehouse);
     setEditingWarehouse(null);
     setIsCreating(false);
+    setSuccessMessage(wasEditing ? 'Warehouse updated.' : 'Warehouse created.');
     loadWarehouses();
   };
 
@@ -140,6 +143,12 @@ export default function Warehouses() {
     deactivate: { title: 'Deactivate Warehouse', confirmLabel: 'Deactivate', isDanger: true },
     restore: { title: 'Restore Warehouse', confirmLabel: 'Restore', isDanger: false },
     setDefault: { title: 'Set Default Warehouse', confirmLabel: 'Set as Default', isDanger: false },
+  };
+
+  const successMessages = {
+    deactivate: (warehouse) => `"${warehouse.name}" has been deactivated.`,
+    restore: (warehouse) => `"${warehouse.name}" has been restored.`,
+    setDefault: (warehouse) => `"${warehouse.name}" is now the default warehouse.`,
   };
 
   const handleConfirmAction = async () => {
@@ -154,9 +163,7 @@ export default function Warehouses() {
         await warehouseService.setDefaultWarehouse(warehouse._id);
       }
       setPendingAction(null);
-      setActionMessage(
-        type === 'setDefault' ? `"${warehouse.name}" is now the default warehouse.` : ''
-      );
+      setSuccessMessage(successMessages[type](warehouse));
       loadWarehouses();
     } catch (err) {
       setActionError(getErrorMessage(err));
@@ -176,14 +183,7 @@ export default function Warehouses() {
         </button>
       </div>
 
-      {actionMessage && (
-        <div
-          className="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-          role="status"
-        >
-          {actionMessage}
-        </div>
-      )}
+      {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
       <label className="mt-4 flex items-center gap-2 text-sm text-slate-600">
         <input

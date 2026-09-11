@@ -5,6 +5,7 @@ import { getErrorMessage } from '../utils/getErrorMessage';
 import { formatNumber } from '../utils/formatters';
 import { StockFormModal } from '../components/StockFormModal';
 import { TransferFormModal } from '../components/TransferFormModal';
+import { Alert } from '../components/Alert';
 
 // Current stock levels across every product/warehouse combination.
 // Stock In and Stock Out are available to every role (day-to-day
@@ -74,14 +75,7 @@ export default function InventoryPage() {
         </div>
       </div>
 
-      {successMessage && (
-        <div
-          className="mt-4 rounded-md bg-emerald-50 px-3 py-2 text-sm text-emerald-700"
-          role="status"
-        >
-          {successMessage}
-        </div>
-      )}
+      {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
       <div className="mt-4 overflow-hidden rounded-lg bg-white shadow">
         {isLoading ? (

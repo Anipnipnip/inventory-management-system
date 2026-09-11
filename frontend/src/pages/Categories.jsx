@@ -3,6 +3,7 @@ import * as categoryService from '../services/categoryService';
 import { getErrorMessage, getFieldErrors } from '../utils/getErrorMessage';
 import { Modal } from '../components/Modal';
 import { ConfirmDialog } from '../components/ConfirmDialog';
+import { Alert } from '../components/Alert';
 
 // Admin-only page (see Sidebar.jsx) -- staff have no reason to manage
 // categories, they just see category names inline on the Products page.
@@ -104,6 +105,8 @@ export default function Categories() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [successMessage, setSuccessMessage] = useState('');
+
   const [editingCategory, setEditingCategory] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [pendingAction, setPendingAction] = useState(null); // { category, type: 'deactivate' | 'restore' }
@@ -128,8 +131,10 @@ export default function Categories() {
   }, [showInactive]);
 
   const handleSaved = () => {
+    const wasEditing = Boolean(editingCategory);
     setEditingCategory(null);
     setIsCreating(false);
+    setSuccessMessage(wasEditing ? 'Category updated.' : 'Category created.');
     loadCategories();
   };
 
@@ -141,6 +146,9 @@ export default function Categories() {
       } else {
         await categoryService.restoreCategory(pendingAction.category._id);
       }
+      setSuccessMessage(
+        pendingAction.type === 'deactivate' ? 'Category deactivated.' : 'Category restored.'
+      );
       setPendingAction(null);
       loadCategories();
     } catch (err) {
@@ -160,6 +168,8 @@ export default function Categories() {
           Add Category
         </button>
       </div>
+
+      {successMessage && <Alert variant="success">{successMessage}</Alert>}
 
       <label className="mt-4 flex items-center gap-2 text-sm text-slate-600">
         <input
