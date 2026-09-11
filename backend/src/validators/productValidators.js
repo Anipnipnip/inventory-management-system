@@ -1,6 +1,21 @@
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
 export const productIdValidator = [param('id').isMongoId().withMessage('Invalid product id')];
+
+const ALLOWED_SORT_FIELDS = ['name', 'sku', 'costPrice', 'sellingPrice', 'createdAt'];
+
+export const productQueryValidator = [
+  query('search').optional().trim().isLength({ max: 100 }).withMessage('Search term is too long'),
+  query('category').optional().isMongoId().withMessage('Invalid category id'),
+  query('supplier').optional().isMongoId().withMessage('Invalid supplier id'),
+  query('sortBy')
+    .optional()
+    .isIn(ALLOWED_SORT_FIELDS)
+    .withMessage(`sortBy must be one of: ${ALLOWED_SORT_FIELDS.join(', ')}`),
+  query('sortOrder').optional().isIn(['asc', 'desc']).withMessage("sortOrder must be 'asc' or 'desc'"),
+  query('page').optional().isInt({ min: 1 }).withMessage('page must be a positive integer'),
+  query('limit').optional().isInt({ min: 1, max: 100 }).withMessage('limit must be between 1 and 100'),
+];
 
 const priceRules = [
   body('costPrice')

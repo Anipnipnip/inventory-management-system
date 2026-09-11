@@ -11,6 +11,7 @@ import {
   productIdValidator,
   createProductValidator,
   updateProductValidator,
+  productQueryValidator,
 } from '../validators/productValidators.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import { protect } from '../middleware/auth.js';
@@ -22,7 +23,7 @@ const router = express.Router();
 // are further restricted to admins below.
 router.use(protect);
 
-router.get('/', getProducts);
+router.get('/', productQueryValidator, validateRequest, getProducts);
 router.get('/:id', productIdValidator, validateRequest, getProductById);
 
 router.post('/', authorize('admin'), createProductValidator, validateRequest, createProduct);

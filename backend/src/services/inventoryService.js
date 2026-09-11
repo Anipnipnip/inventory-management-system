@@ -3,6 +3,7 @@ import StockTransaction from '../models/StockTransaction.js';
 import Warehouse from '../models/Warehouse.js';
 import Product from '../models/Product.js';
 import { AppError } from '../utils/AppError.js';
+import { parsePagination, buildPaginationMeta } from '../utils/pagination.js';
 
 // Shared by stock-in/out (and, in Phase 10, transfer): confirms the
 // product exists+active, and resolves which warehouse to use --
@@ -184,11 +185,12 @@ export const transferStock = async ({
   return { sourceInventory, destinationInventory, transferOut, transferIn };
 };
 
-// Filtered, paginated read of the StockTransaction log. Simple
-// skip/limit for now -- richer pagination (metadata, sorting options)
-// is generalized across all list endpoints in Phase 11.
+// Filtered, paginated read of the StockTransaction log. Uses the same
+// server-side pagination helper as the product list (Phase 11) -- large
+// history logs get the same "fetch only this page" treatment instead of
+// loading the entire log to show 20 rows.
 export const getStockHistory = async (filters) => {
-  const { product, warehouse, type, startDate, endDate, page = 1, limit = 20 } = filters;
+  const { product, warehouse, type, startDate, endDate } = filters;
 
   const query = {};
   if (product) query.product = product;
@@ -200,7 +202,7 @@ export const getStockHistory = async (filters) => {
     if (endDate) query.createdAt.$lte = new Date(endDate);
   }
 
-  const skip = (page - 1) * limit;
+  const { page, limit, skip } = parsePagination(filters);
 
   const [transactions, total] = await Promise.all([
     StockTransaction.find(query)
@@ -213,5 +215,5 @@ export const getStockHistory = async (filters) => {
     StockTransaction.countDocuments(query),
   ]);
 
-  return { transactions, total, page: Number(page), limit: Number(limit) };
+  return { transactions, pagination: buildPaginationMeta(total, page, limit) };
 };

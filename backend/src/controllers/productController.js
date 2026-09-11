@@ -3,6 +3,7 @@ import Category from '../models/Category.js';
 import Supplier from '../models/Supplier.js';
 import { AppError } from '../utils/AppError.js';
 import { escapeRegex } from '../utils/escapeRegex.js';
+import { parsePagination, buildPaginationMeta } from '../utils/pagination.js';
 
 // Shared across create/update: confirms the referenced category exists
 // and hasn't been soft-deleted, so a product never points at a category
@@ -24,19 +25,45 @@ const assertSupplierIsUsable = async (supplierId) => {
 };
 
 // GET /api/products
+// Supports search (?search=, matches name or SKU), filtering (?category=,
+// ?supplier=), sorting (?sortBy=&sortOrder=), and pagination (?page=&limit=).
+// Server-side pagination is used here rather than sending the full list
+// and slicing it in the browser -- for a business with thousands of
+// products, that would mean shipping and holding all of them in memory
+// just to show 10 at a time. Fetching only the requested page keeps the
+// response small and the database query cheap regardless of catalog size.
 export const getProducts = async (req, res) => {
   const showInactive = req.user.role === 'admin' && req.query.includeInactive === 'true';
   const filter = showInactive ? {} : { isActive: true };
 
-  const products = await Product.find(filter)
-    .populate('category', 'name')
-    .populate('supplier', 'name')
-    .sort({ name: 1 });
+  if (req.query.category) filter.category = req.query.category;
+  if (req.query.supplier) filter.supplier = req.query.supplier;
+
+  if (req.query.search) {
+    const searchRegex = new RegExp(escapeRegex(req.query.search), 'i');
+    filter.$or = [{ name: searchRegex }, { sku: searchRegex }];
+  }
+
+  const sortBy = req.query.sortBy || 'name';
+  const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+  const sort = { [sortBy]: sortOrder };
+
+  const { page, limit, skip } = parsePagination(req.query);
+
+  const [products, total] = await Promise.all([
+    Product.find(filter)
+      .populate('category', 'name')
+      .populate('supplier', 'name')
+      .sort(sort)
+      .skip(skip)
+      .limit(limit),
+    Product.countDocuments(filter),
+  ]);
 
   res.status(200).json({
     success: true,
     message: 'Products retrieved',
-    data: { products },
+    data: { products, pagination: buildPaginationMeta(total, page, limit) },
   });
 };
 
