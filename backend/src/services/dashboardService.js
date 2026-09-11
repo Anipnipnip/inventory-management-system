@@ -30,7 +30,11 @@ export const getDashboardSummary = async () => {
 
     // Total inventory value = sum of (quantity * costPrice) across every
     // Inventory row. $lookup joins in the product's costPrice since
-    // Inventory itself only stores quantity (Phase 9 design).
+    // Inventory itself only stores quantity (Phase 9 design). Only
+    // active products count -- a deactivated product's leftover stock
+    // (Inventory rows aren't deleted when a product is, by design)
+    // shouldn't inflate this figure, matching the same isActive filter
+    // used by lowStockProducts below and by getValuationReport.
     Inventory.aggregate([
       {
         $lookup: {
@@ -41,6 +45,7 @@ export const getDashboardSummary = async () => {
         },
       },
       { $unwind: '$productInfo' },
+      { $match: { 'productInfo.isActive': true } },
       {
         $group: {
           _id: null,
