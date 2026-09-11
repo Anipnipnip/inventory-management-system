@@ -1,16 +1,28 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import { ProtectedRoute } from './routes/ProtectedRoute';
+import { PublicOnlyRoute } from './routes/PublicOnlyRoute';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100">
-      <div className="rounded-lg bg-white p-8 text-center shadow">
-        <h1 className="text-2xl font-semibold text-slate-800">
-          Inventory Management System
-        </h1>
-        <p className="mt-2 text-slate-500">
-          Frontend scaffold ready. Pages will be built in later phases.
-        </p>
-      </div>
-    </div>
-  )
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route element={<PublicOnlyRoute />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+          </Route>
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Dashboard />} />
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
