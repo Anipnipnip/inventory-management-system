@@ -9,6 +9,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
+import Categories from './pages/Categories';
+import Suppliers from './pages/Suppliers';
 
 function App() {
   return (
@@ -27,6 +29,8 @@ function App() {
 
               <Route element={<AdminRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/categories" element={<Categories />} />
+                <Route path="/suppliers" element={<Suppliers />} />
               </Route>
             </Route>
           </Route>

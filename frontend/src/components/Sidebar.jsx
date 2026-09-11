@@ -27,6 +27,16 @@ export const Sidebar = () => {
         <NavLink to="/products" className={linkClasses}>
           Products
         </NavLink>
+        {isAdmin && (
+          <NavLink to="/categories" className={linkClasses}>
+            Categories
+          </NavLink>
+        )}
+        {isAdmin && (
+          <NavLink to="/suppliers" className={linkClasses}>
+            Suppliers
+          </NavLink>
+        )}
       </nav>
     </aside>
   );
