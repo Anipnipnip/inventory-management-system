@@ -48,6 +48,11 @@ export const Sidebar = () => {
             Warehouses
           </NavLink>
         )}
+        {isAdmin && (
+          <NavLink to="/reports" className={linkClasses}>
+            Reports
+          </NavLink>
+        )}
       </nav>
     </aside>
   );

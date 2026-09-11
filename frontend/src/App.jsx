@@ -14,6 +14,7 @@ import Suppliers from './pages/Suppliers';
 import InventoryPage from './pages/Inventory';
 import History from './pages/History';
 import Warehouses from './pages/Warehouses';
+import Reports from './pages/Reports';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/suppliers" element={<Suppliers />} />
                 <Route path="/warehouses" element={<Warehouses />} />
+                <Route path="/reports" element={<Reports />} />
               </Route>
             </Route>
           </Route>
