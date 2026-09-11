@@ -1,11 +1,10 @@
 import Inventory from '../models/Inventory.js';
-import { stockIn, stockOut } from '../services/inventoryService.js';
+import { stockIn, stockOut, transferStock, getStockHistory } from '../services/inventoryService.js';
 
 // GET /api/inventory
 // Current stock levels, optionally narrowed to one product and/or
 // warehouse. This is a read of the Inventory snapshot -- for the
-// movement history behind these numbers, see /api/inventory/history
-// (Phase 10).
+// movement history behind these numbers, see getHistory below.
 export const getInventory = async (req, res) => {
   const filter = {};
   if (req.query.product) filter.product = req.query.product;
@@ -62,5 +61,38 @@ export const postStockOut = async (req, res) => {
     success: true,
     message: 'Stock out recorded',
     data: { inventory, transaction },
+  });
+};
+
+// POST /api/inventory/transfer
+// Admin-only (Phase 1 role definitions) -- moving stock between
+// locations without staff-level oversight is a deliberate restriction.
+export const postTransfer = async (req, res) => {
+  const { productId, fromWarehouseId, toWarehouseId, quantity, note } = req.body;
+
+  const result = await transferStock({
+    productId,
+    fromWarehouseId,
+    toWarehouseId,
+    quantity,
+    userId: req.user._id,
+    note,
+  });
+
+  res.status(201).json({
+    success: true,
+    message: 'Stock transfer recorded',
+    data: result,
+  });
+};
+
+// GET /api/inventory/history
+export const getHistory = async (req, res) => {
+  const result = await getStockHistory(req.query);
+
+  res.status(200).json({
+    success: true,
+    message: 'Stock history retrieved',
+    data: result,
   });
 };
